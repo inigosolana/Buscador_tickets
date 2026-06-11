@@ -1,0 +1,92 @@
+{
+  "name": "AutoScout24 Car Alerts Native Telegram Photo",
+  "nodes": [
+    {
+      "id": "webhook-1",
+      "name": "Webhook AutoScout",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "path": "autoscout-alerts-native-photo",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "code-1",
+      "name": "Expandir y deduplicar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const payload = $input.first()?.json?.body ?? $input.first()?.json ?? {};\nconst cars = Array.isArray(payload.items) ? payload.items : [];\nconst store = $getWorkflowStaticData('global');\nif (!store.seenIds || typeof store.seenIds !== 'object') store.seenIds = {};\nconst fresh = [];\n\nfor (const car of cars) {\n  const leadId = String(car.lead_id ?? car.id ?? '').trim();\n  const url = String(car.url ?? car.link ?? '').trim();\n  if (!leadId || !url) continue;\n  if (store.seenIds[leadId]) continue;\n\n  store.seenIds[leadId] = {\n    firstSeenAt: new Date().toISOString(),\n    title: String(car.title ?? car.modelo ?? 'Sin titulo'),\n    url,\n  };\n\n  fresh.push({\n    json: {\n      lead_id: leadId,\n      title: String(car.title ?? car.modelo ?? 'Sin titulo'),\n      price: String(car.price ?? car.precio ?? 'No disponible'),\n      mileage_km: String(car.mileage_km ?? car.km ?? 'No disponible'),\n      year: String(car.year ?? car.ano ?? 'No disponible'),\n      url,\n      image_url: String(car.image_url ?? ''),\n      location: String(car.location ?? 'Ubicacion no disponible'),\n      source: String(car.source ?? 'AutoScout24'),\n    },\n  });\n}\n\nreturn fresh;"
+      }
+    },
+    {
+      "id": "telegram-1",
+      "name": "Enviar Foto Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendPhoto",
+        "chatId": "1294104369",
+        "binaryData": false,
+        "file": "={{ $json.image_url }}",
+        "additionalFields": {
+          "caption": "=🚗 *Nuevo Mazda detectado*%0A%0A*Modelo*%0A{{ $json.title }}%0A%0A*Precio*%0A{{ $json.price }}%0A%0A*Kilómetros*%0A{{ $json.mileage_km }}%0A%0A*Año*%0A{{ $json.year }}%0A%0A*Ubicación*%0A{{ $json.location }}%0A%0A*Fuente*%0A{{ $json.source }}%0A%0A[Ver anuncio]({{ $json.url }})",
+          "parse_mode": "Markdown"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "35Q3javzGWYNzJpX",
+          "name": "Telegram Inigo"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook AutoScout": {
+      "main": [
+        [
+          {
+            "node": "Expandir y deduplicar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expandir y deduplicar": {
+      "main": [
+        [
+          {
+            "node": "Enviar Foto Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Madrid",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  }
+}

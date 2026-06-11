@@ -1,0 +1,9 @@
+{
+  "models": [
+    { "brand": "kia", "model": "niro", "min_year": 2023 },
+    { "brand": "kia", "model": "sportage", "min_year": 2023 },
+    { "brand": "mazda", "model": "cx-3", "min_year": 2022, "fuel": "gasolina" },
+    { "brand": "mazda", "model": "cx-30", "min_year": 2022, "fuel": "gasolina" },
+    { "brand": "mazda", "model": "cx-5", "min_year": 2022, "fuel": "gasolina" }
+  ]
+}

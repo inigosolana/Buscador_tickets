@@ -1,0 +1,6 @@
+__pycache__/
+reader_markdown_cache.json
+sent_car_ids.json
+telegram_cars_store.json
+*.pyc
+.env
