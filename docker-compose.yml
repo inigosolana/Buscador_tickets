@@ -5,11 +5,14 @@ services:
       dockerfile: Dockerfile
     container_name: buscador_alertas
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      TARGET_POSTAL_CODE: ${TARGET_POSTAL_CODE}
+      MAX_DISTANCE_KM: ${MAX_DISTANCE_KM}
+      MAX_RESULTS: ${MAX_RESULTS}
+      SCRAPE_INTERVAL_SECONDS: ${SCRAPE_INTERVAL_SECONDS}
       TZ: Europe/Madrid
-      SCRAPE_INTERVAL_SECONDS: 900
     volumes:
       - buscador_coches_data:/app/data
     command: ["/app/bootstrap.sh", "/app/entrypoint.sh"]
@@ -20,9 +23,13 @@ services:
       dockerfile: Dockerfile
     container_name: buscador_bot
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      TARGET_POSTAL_CODE: ${TARGET_POSTAL_CODE}
+      MAX_DISTANCE_KM: ${MAX_DISTANCE_KM}
+      MAX_RESULTS: ${MAX_RESULTS}
+      SCRAPE_INTERVAL_SECONDS: ${SCRAPE_INTERVAL_SECONDS}
       TZ: Europe/Madrid
     volumes:
       - buscador_coches_data:/app/data
