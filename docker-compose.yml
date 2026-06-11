@@ -1,0 +1,32 @@
+services:
+  buscador_alertas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: buscador_alertas
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      TZ: Europe/Madrid
+      SCRAPE_INTERVAL_SECONDS: 900
+    volumes:
+      - buscador_coches_data:/app/data
+    command: ["/app/bootstrap.sh", "/app/entrypoint.sh"]
+
+  buscador_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: buscador_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      TZ: Europe/Madrid
+    volumes:
+      - buscador_coches_data:/app/data
+    command: ["/app/bootstrap.sh", "python", "/app/telegram_bot_service.py"]
+
+volumes:
+  buscador_coches_data:
